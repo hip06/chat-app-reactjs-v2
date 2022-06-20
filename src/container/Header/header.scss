@@ -1,0 +1,28 @@
+@use '../../styles/' as *;
+
+.Header-container {
+    height: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    @include flex(space-between, center, row);
+    padding: 0 32px;
+
+    .logo {
+        width: 25%;
+        font-size: 2rem;
+        color: darkblue;
+        font-weight: 600;
+    }
+
+    .search {
+        width: 50%;
+
+        input {
+            width: 75%;
+        }
+    }
+
+    .avatar {
+        @include flex(space-between, center, row);
+        width: 25%;
+    }
+}

@@ -16,15 +16,10 @@ const authConfig = {
     key: 'auth',
     whitelist: ['isLoggedIn', 'user'],
 }
-const userConfig = {
-    ...commonConfig,
-    key: 'user',
-    blacklist: ['allDataUser', 'msg']
-}
 
 const rootReducer = combineReducers({
     auth: persistReducer(authConfig, authReducer),
-    user: persistReducer(userConfig, userReducer),
+    user: userReducer,
     app: appReducer
 })
 

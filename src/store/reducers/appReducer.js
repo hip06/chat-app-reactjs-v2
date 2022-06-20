@@ -1,8 +1,11 @@
 import { actionTypes } from '../actions/actionTypes'
+import { io } from 'socket.io-client'
+
+let socket = io(process.env.REACT_APP_SOCKET_SERVER)
 
 const initState = {
     statusRefresh: false,
-    socket: null
+    socket
 }
 
 const appReducer = (state = initState, action) => {
@@ -12,11 +15,11 @@ const appReducer = (state = initState, action) => {
                 ...state,
                 statusRefresh: !state.statusRefresh
             }
-        case actionTypes.START_SOCKET:
-            return {
-                ...state,
-                socket: action.data
-            }
+        // case actionTypes.START_SOCKET:
+        //     return {
+        //         ...state,
+        //         socket: action.data
+        //     }
         default:
             return state
     }

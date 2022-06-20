@@ -7,16 +7,11 @@ import Home from "./routes/Home";
 import System from "./routes/System";
 import { protector, redirecter } from './hoc/authentication'
 import { Redirect } from 'react-router-dom'
-import { io } from 'socket.io-client'
 import { connect } from "react-redux";
-
-let socket = io(process.env.REACT_APP_URL_NODEJS)
 
 
 class App extends React.Component {
-  componentDidMount() {
-    this.props.startSocket(socket)
-  }
+
   render() {
     return (
       <Router history={history}>
@@ -35,7 +30,7 @@ class App extends React.Component {
 }
 const dispatchStateToProps = (dispatch) => {
   return ({
-    startSocket: (socket) => dispatch({ type: 'START_SOCKET', data: socket })
+    // startSocket: (socket) => dispatch({ type: 'START_SOCKET', data: socket })
   })
 }
 

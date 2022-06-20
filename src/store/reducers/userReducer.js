@@ -13,7 +13,6 @@ const userReducer = (state = initState, action) => {
                 ...state,
                 allDataUser: action.data.user,
                 msg: action.data.msg
-
             }
         case actionTypes.GET_ALL_USERS_FAIL:
             return {

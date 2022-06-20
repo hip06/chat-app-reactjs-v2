@@ -6,6 +6,7 @@ import * as actions from '../../store/actions'
 import List from "../List/List";
 import * as userService from '../../services/userServices'
 import { ToastContainer, toast } from 'react-toastify';
+import Header from "../Header/Header";
 
 
 
@@ -31,13 +32,18 @@ class Profile extends React.Component {
     }
 
     render() {
-
+        console.log(this.props.socket);
         return (
             <>
-                profile
+                <div className="Profile-container">
+                    <div className="header">
+                        <Header />
+                    </div>
+                    profile
+                </div>
                 <ToastContainer
                     position="bottom-right"
-                    autoClose={5000}
+                    autoClose={3000}
                     hideProgressBar={false}
                     newestOnTop={false}
                     closeOnClick
@@ -51,7 +57,7 @@ class Profile extends React.Component {
     }
 }
 const mapStateToProps = (state) => ({
-
+    socket: state.app.socket
 
 })
 const dispatchStateToProps = (dispatch) => {
