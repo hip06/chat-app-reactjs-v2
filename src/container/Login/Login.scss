@@ -1,0 +1,47 @@
+@use '../../styles/' as *;
+
+
+.Login-container {
+    background-image: linear-gradient(135deg, #FFD0D2, #D0FFFD);
+    color: $txt-color;
+    width: 100vw;
+    height: 100vh;
+    @include flex(center, center, row);
+
+    .box-login {
+        width: 30%;
+        background-color: $main-color;
+        border-radius: 20px;
+        @include flex(center, flex-start, column);
+        padding: 16px 32px;
+        box-shadow: $box-shadow;
+
+        h1,
+        button,
+        span {
+            align-self: center;
+            margin-bottom: 16px;
+        }
+
+        .item {
+            width: 100%;
+            margin-bottom: 16px;
+
+        }
+
+        span {
+            &:hover {
+                opacity: 0.8;
+                cursor: pointer;
+            }
+        }
+
+        button {
+            margin-top: 16px;
+        }
+
+        h1 {
+            margin-bottom: 32px;
+        }
+    }
+}

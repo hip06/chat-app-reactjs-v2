@@ -1,0 +1,69 @@
+@use '../../styles/' as *;
+$avatar: 150px;
+
+.ModalSelectAvatar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    @include flex(center, center, none);
+
+    .box-modal {
+        background-color: #fff;
+        padding: 32px;
+        max-width: 70%;
+        border-radius: 50px;
+        box-shadow: $box-shadow;
+
+        h3 {
+            margin-left: 32px;
+        }
+
+        .options-img {
+            @include flex(flex-start, center, row);
+            flex-wrap: wrap;
+
+
+            .wrap-img {
+                width: $avatar;
+                height: $avatar;
+                border-radius: calc($avatar / 2);
+                margin: 32px;
+                cursor: pointer;
+                overflow: hidden;
+                box-shadow: 0 0 10px rgb(43, 43, 43);
+
+
+                &.selected {
+                    border: 2px solid red;
+                    box-shadow: none;
+                }
+
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    transition: transform 0.3s ease-out;
+
+                    &:hover {
+                        transform: scale(1.1);
+
+                    }
+                }
+
+            }
+        }
+
+        .btn-submit {
+            @include flex(center, center, none);
+            gap: 32px;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+    }
+}
