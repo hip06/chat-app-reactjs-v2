@@ -27,7 +27,7 @@ export const updateAvatar = (data) => {
         }
     })
 }
-export const handleAddFriend = (data) => {
+export const handleAddFriendService = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             let response = await axios({
