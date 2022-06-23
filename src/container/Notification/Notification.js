@@ -2,6 +2,7 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import './Notification.scss'
+import { updateStatusFriend } from '../../services/userServices'
 
 
 class Notification extends React.Component {
@@ -10,6 +11,11 @@ class Notification extends React.Component {
         this.state = {
 
         }
+    }
+    handleUpdateStatusFriend = async (item) => {
+        let response = await updateStatusFriend(item.response)
+        // them ban OK
+        console.log(response);
     }
     render() {
         let { notificationContent } = this.props
@@ -24,7 +30,7 @@ class Notification extends React.Component {
                             <div key={index} className="item">
                                 <div className="content">{item.message}</div>
                                 {item.btn && <div className="btns">
-                                    <button type="button" className="btn btn-primary btn-notice">Đồng ý</button>
+                                    <button onClick={() => this.handleUpdateStatusFriend(item)} type="button" className="btn btn-primary btn-notice">Đồng ý</button>
                                     <button type="button" className="btn btn-danger btn-notice">Từ chối</button>
                                 </div>}
                             </div>

@@ -68,3 +68,17 @@ export const getInfoFriends = (payload) => {
         }
     })
 }
+export const updateStatusFriend = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let response = await axios({
+                method: 'put',
+                url: `${process.env.REACT_APP_URL_NODEJS}/api/update-status-friends`,
+                data
+            })
+            resolve(response)
+        } catch (error) {
+            reject(error)
+        }
+    })
+}

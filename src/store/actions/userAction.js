@@ -27,7 +27,6 @@ export const getAllfriend = (params) => {
     return async (dispatch, getState) => {
         try {
             let response = await userService.handleGetFriend(params)
-            console.log(response);
             if (response && response.data.err === 0) {
                 dispatch(getAllfriendSuccess(response.data))
             } else {

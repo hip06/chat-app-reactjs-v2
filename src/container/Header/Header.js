@@ -72,16 +72,19 @@ class Header extends React.Component {
             this.setState({ allDataUser: this.props.dataAllUsers })
         }
         if (prevProps.dataAllFriend !== this.props.dataAllFriend) {
+            console.log('here');
             this.setState({ allDataFriend: this.props.dataAllFriend })
         }
     }
     handleSearch = (event) => {
-        let { allDataUser } = this.state
+        let { allDataUser, allDataFriend } = this.state
         this.setState({
             keyword: event.target.value
         }, () => {
             if (this.state.keyword.trim() !== '' && allDataUser.length > 0) {
-                let suggestFriends = allDataUser.filter(item => item.username.includes(this.state.keyword) && item.id !== +decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId))
+                let suggestFriends = allDataUser
+                    .filter(item => item.username.includes(this.state.keyword) && item.id !== +decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId))
+                    .filter(item2 => !allDataFriend.some(item3 => item3.to === item2.id))
                 this.setState({ suggestFriends })
             } else {
                 this.setState({
@@ -106,6 +109,7 @@ class Header extends React.Component {
         }
         let response = await handleAddFriendService(payload)
         if (response?.data?.err === 0) {
+            await this.props.fetchAllDataFriends({ userId })
             // socket emit
             socket.emit('reqAddFriend', { ...payload, userId })
             // toast notice
@@ -137,7 +141,7 @@ class Header extends React.Component {
         })
     }
     render() {
-        // console.log(this.props);
+        // console.log(this.props.dataAllFriend);
         let { keyword, suggestFriends, notificationCounter, notificationMessageCounter, isShowNotification, notificationContent, notificationMessageContent,
             friendSendRequest } = this.state
         return (
@@ -169,7 +173,7 @@ class Header extends React.Component {
                                             className="btn btn-primary"
                                             onClick={() => this.handleAddFriend(item)}
                                         >
-                                            <i className="fas fa-plus"></i>Thêm bạn
+                                            {friendSendRequest?.some(item2 => item2 === item.id) ? 'Đã gửi kết bạn' : <><i className="fas fa-plus"></i>Thêm bạn</>}
                                         </button>
                                     </div>
                                 )
