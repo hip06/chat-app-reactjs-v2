@@ -1,0 +1,54 @@
+@use '../../styles/' as *;
+
+.Notification-container {
+    position: absolute;
+    top: calc(100% + 16px);
+    right: -32px;
+    background-color: rgb(32, 32, 32);
+    border-radius: 5px;
+    min-width: 300px;
+
+    &::before {
+        content: '';
+        position: absolute;
+        display: block;
+        border-top: 10px solid transparent;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 10px solid rgb(32, 32, 32);
+        top: -20px;
+        right: 30px;
+    }
+
+    .item {
+        padding: 16px;
+        font-size: 0.8rem;
+        border-bottom: 1px solid rgba(48, 48, 48, 0.5);
+
+        .btns {
+            @include flex(flex-end, center, row);
+            margin-top: 8px;
+            gap: 8px;
+
+            .btn-notice {
+                font-size: 0.7rem;
+                padding: 0.25rem 0.4rem;
+            }
+        }
+    }
+
+    .clear-notification {
+        @include flex(center, center, none);
+        padding-top: 16px;
+
+        p {
+            font-size: 0.8rem;
+            color: blue;
+            cursor: pointer;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}

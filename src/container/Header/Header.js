@@ -6,6 +6,7 @@ import * as actions from '../../store/actions'
 import { decrypt } from '../../ulties/crypt'
 import { handleAddFriendService } from '../../services/userServices'
 import { ToastContainer, toast } from 'react-toastify';
+import Notification from "../Notification/Notification";
 
 
 class Header extends React.Component {
@@ -18,23 +19,53 @@ class Header extends React.Component {
             suggestFriends: null,
             notificationMessageCounter: 0,
             notificationCounter: 0,
-            notificationContent: []
+            notificationContent: [],
+            notificationMessageContent: [],
+            isShowNotification: false,
+            isClickSuggest: false,
+            friendSendRequest: []
         }
+        this.responseOnline = null
+        this.responseOffline = null
     }
     async componentDidMount() {
         let { socket } = this.props
         let userId = +decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId)
         //socket event
         socket.emit('online', { userId })
-        socket.on('addFriendOnline', (response) => {
-            console.log(response)
+        // role là người đc nhận lời mời kết bạn (receiver)
+        socket.off('addFriendOnline').on('addFriendOnline', (response) => {
+            if (JSON.stringify(this.responseOnline) !== JSON.stringify(response)) {
+                this.setState({
+                    notificationCounter: this.state.notificationCounter += 1,
+                    notificationContent: [...this.state.notificationContent, {
+                        type: 'addFriend',
+                        message: `Bạn có một đề nghị kết bạn từ ${response.usernameSender}`,
+                        response,
+                        btn: true
+                    }]
+                })
+            }
+            this.responseOnline = response
         })
-        socket.on('addFriendOffline', (response) => {
-            console.log(response)
+        // role là người gửi lời mời kết bạn (sender)
+        socket.off('addFriendOffline').on('addFriendOffline', (response) => {
+            if (JSON.stringify(this.responseOffline) !== JSON.stringify(response)) {
+                this.setState({
+                    notificationCounter: this.state.notificationCounter += 1,
+                    notificationContent: [...this.state.notificationContent, {
+                        type: 'addFriend',
+                        message: `Tài khoản ${response.usernameReceiver} đang offline, lời mời đang ở chế độ chờ`,
+                        response,
+                        btn: false
+                    }]
+                })
+            }
+            this.responseOffline = response
         })
 
         // fetch api
-        await this.props.fetchAllDataUsers()
+        await Promise.all([this.props.fetchAllDataUsers(), this.props.fetchAllDataFriends({ userId })])
     }
     componentDidUpdate(prevProps) {
         if (prevProps.dataAllUsers !== this.props.dataAllUsers) {
@@ -59,27 +90,56 @@ class Header extends React.Component {
             }
         })
     }
+    clearNotification = () => {
+        this.setState({
+            notificationContent: []
+        })
+    }
     handleAddFriend = async (item) => {
         let { socket } = this.props
         let userId = +decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId)
         let payload = {
             userId: this.props?.currentUser?.userId,
             friendId: item.id,
-            username: item.username
+            usernameReceiver: item.username,
+            usernameSender: this.props?.currentUser?.username
         }
         let response = await handleAddFriendService(payload)
         if (response?.data?.err === 0) {
             // socket emit
             socket.emit('reqAddFriend', { ...payload, userId })
             // toast notice
+            this.setState({
+                friendSendRequest: [...this.state.friendSendRequest, item.id]
+            })
             toast.success(`Đã gửi thành công đề nghị kết bạn tới ${item.username}`)
 
         }
     }
+    toggleNotification = (type) => {
+        this.setState({
+            isShowNotification: this.state.isShowNotification === type ? false : type,
+            notificationCounter: type === 2 ? 0 : this.state.notificationCounter,
+            notificationMessageCounter: type === 1 ? 0 : this.state.notificationMessageCounter,
+        })
+    }
+    handleOnBlurSearch = () => {
+        if (!this.state.isClickSuggest) {
+            this.setState({
+                keyword: '',
+                suggestFriends: []
+            })
+        }
+    }
+    handleHideSuggest = () => {
+        this.setState({ isClickSuggest: false }, () => {
+            this.handleOnBlurSearch()
+        })
+    }
     render() {
         // console.log(this.props);
-        let { keyword, suggestFriends, notificationCounter, notificationMessageCounter } = this.state
-        // console.log(this.props.socket);
+        let { keyword, suggestFriends, notificationCounter, notificationMessageCounter, isShowNotification, notificationContent, notificationMessageContent,
+            friendSendRequest } = this.state
         return (
             <>
                 <div className="Header-container">
@@ -92,7 +152,11 @@ class Header extends React.Component {
                             value={keyword}
                             onChange={(event) => this.handleSearch(event)}
                         />
-                        <div className="suggest">
+                        <div
+                            onMouseEnter={() => this.setState({ isClickSuggest: true })}
+                            onMouseLeave={() => this.handleHideSuggest()}
+                            className="suggest"
+                        >
                             {suggestFriends && suggestFriends.length > 0 && suggestFriends.map((item, index) => {
                                 return (
                                     <div key={index} className="item-suggest">
@@ -115,12 +179,20 @@ class Header extends React.Component {
                     <div className="avatar">
                         <div className="account">
                             <div className="message icon-notice">
-                                <i className="fas fa-comments"></i>
-                                <div className="notification-counter">{notificationMessageCounter}</div>
+                                <i onClick={() => this.toggleNotification(1)} className="fas fa-comments"></i>
+                                {notificationMessageCounter !== 0 && <div className="notification-counter">{notificationMessageCounter}</div>}
+                                {isShowNotification === 1 && <Notification
+                                    notificationContent={notificationMessageContent}
+                                    clearNotification={this.clearNotification}
+                                />}
                             </div>
                             <div className="notice icon-notice">
-                                <i className="fas fa-bell"></i>
-                                <div className="notification-counter">{notificationCounter}</div>
+                                <i onClick={() => this.toggleNotification(2)} className="fas fa-bell"></i>
+                                {notificationCounter !== 0 && <div className="notification-counter">{notificationCounter}</div>}
+                                {isShowNotification === 2 && <Notification
+                                    notificationContent={notificationContent}
+                                    clearNotification={this.clearNotification}
+                                />}
                             </div>
                             <div className="avatar-img">avatar</div>
                         </div>
@@ -153,7 +225,7 @@ const mapStateToProps = (state) => {
 const dispatchStateToProps = (dispatch) => {
     return ({
         fetchAllDataUsers: () => dispatch(actions.getAllUsers()),
-        fetchAllDataFriends: () => dispatch(actions.getAllfriend()),
+        fetchAllDataFriends: (data) => dispatch(actions.getAllfriend(data)),
         logout: () => dispatch(actions.logout())
     })
 }
