@@ -9,12 +9,23 @@
         justify-content: flex-end;
     }
 
+    .avatar {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
     .content-message {
-        padding: 16px;
+        padding: 12px;
         background-color: rgb(101, 128, 245);
         border-radius: 5px;
         margin: 16px;
-        width: 50%;
+        max-width: 50%;
+
+        &.receiver {
+            background-color: rgb(119, 117, 117);
+        }
     }
 
     .create-at {
@@ -30,4 +41,8 @@
 
 .second {
     order: 2;
+}
+
+.disabled {
+    display: none;
 }

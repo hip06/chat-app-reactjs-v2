@@ -25,11 +25,21 @@ class Profile extends React.Component {
     async componentDidUpdate(prevProps) {
 
     }
-    handleCreateRoomChat = (item) => {
+    handleCreateRoomChat = async (item) => {
         if (item.status === 'OK') {
-            this.setState({
-                dataCreateRoom: item
+            // console.log(item);
+            let response = await userService.getRoomId({
+                userId: item.from,
+                friendId: item.to
             })
+            if (response?.data.err === 0) {
+                this.setState({
+                    dataCreateRoom: {
+                        ...item,
+                        ...response.data.response
+                    }
+                })
+            }
         } else {
             toast.warn(`Bạn và ${item['User.username']} vẫn chưa kết bạn !`)
         }

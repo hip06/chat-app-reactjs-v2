@@ -23,6 +23,12 @@
         .messages {
             height: 85%;
             width: 100%;
+            padding: 8px;
+
+            .scroll-libra {
+                width: 90%;
+                overflow-x: hidden !important;
+            }
         }
 
         .input-message {

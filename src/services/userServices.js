@@ -82,3 +82,43 @@ export const updateStatusFriend = (data) => {
         }
     })
 }
+export const getRoomId = ({ userId, friendId }) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let response = await axios({
+                method: 'get',
+                url: `${process.env.REACT_APP_URL_NODEJS}/api/get-conversation-id?userId=${userId}&friendId=${friendId}`,
+            })
+            resolve(response)
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+export const sendMessage = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let response = await axios({
+                method: 'put',
+                url: `${process.env.REACT_APP_URL_NODEJS}/api/update-chat`,
+                data
+            })
+            resolve(response)
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+export const getPastChat = (conversationId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let response = await axios({
+                method: 'get',
+                url: `${process.env.REACT_APP_URL_NODEJS}/api/past-chat?conversationId=${conversationId}`,
+            })
+            resolve(response)
+        } catch (error) {
+            reject(error)
+        }
+    })
+}

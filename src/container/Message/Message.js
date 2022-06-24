@@ -11,14 +11,19 @@ class Message extends React.Component {
 
         }
     }
+    timestampToDate = (timestamp) => {
+        let date = new Date(timestamp)
+        return `${date.getHours()}:${date.getMinutes()}`
+    }
     render() {
-        let { own } = this.props
+        let { own, avatar, content, time } = this.props
         return (
             <div className={own ? "Message-container own" : "Message-container"}>
-                <div className={own ? "content-message second" : "content-message"}>
-                    Message-container Message-container Message-container Message-container Message-containerMessage-containerMessage-containerMessage-container
+                <img className={own ? "avatar disabled" : "avatar"} src={avatar} alt="avatar" />
+                <div className={own ? "content-message second" : "content-message receiver"}>
+                    {content}
                 </div>
-                <div className={own ? "create-at first" : "create-at"}>17:00</div>
+                <div className={own ? "create-at first" : "create-at"}>{this.timestampToDate(time)}</div>
             </div>
         )
     }
