@@ -7,6 +7,7 @@ import * as userService from '../../services/userServices'
 import { ToastContainer, toast } from 'react-toastify';
 import Header from "../Header/Header";
 import List from "../List/List";
+import Conversation from "../Conversation/Conversation";
 
 
 
@@ -14,13 +15,7 @@ class Profile extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            isModal: false,
-            keyword: '',
-            dataSuggest: '',
-            refresh: false,
-            notification: 0,
-            contentNotification: [],
-            isModalNotification: false
+            dataCreateRoom: null
         }
     }
     async componentDidMount() {
@@ -30,9 +25,19 @@ class Profile extends React.Component {
     async componentDidUpdate(prevProps) {
 
     }
+    handleCreateRoomChat = (item) => {
+        if (item.status === 'OK') {
+            this.setState({
+                dataCreateRoom: item
+            })
+        } else {
+            toast.warn(`Bạn và ${item['User.username']} vẫn chưa kết bạn !`)
+        }
+    }
 
     render() {
-        console.log(this.props.socket);
+        // console.log(this.props.socket);
+        let { dataCreateRoom } = this.state
         return (
             <>
                 <div className="Profile-container">
@@ -41,7 +46,10 @@ class Profile extends React.Component {
                     </div>
                     <div className="profile-content">
                         <div className="list-friend">
-                            <List />
+                            <List handleCreateRoomChat={this.handleCreateRoomChat} />
+                        </div>
+                        <div className="conversation-box">
+                            <Conversation dataCreateRoom={dataCreateRoom} />
                         </div>
                     </div>
                 </div>

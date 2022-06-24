@@ -27,14 +27,6 @@ class List extends React.Component {
             })
         }
     }
-
-    handleCreateRoomChat = (item) => {
-        if (item.status === 'OK') {
-            // tạo room chat
-        } else {
-            toast.warn(`Bạn và ${item['User.username']} vẫn chưa kết bạn !`)
-        }
-    }
     render() {
         // console.log(this.props);
         let { listFriend } = this.state
@@ -42,7 +34,7 @@ class List extends React.Component {
             <div className="List-container">
                 {listFriend?.length > 0 && listFriend.map((item, index) => {
                     return (
-                        <div onClick={() => this.handleCreateRoomChat(item)} className="item" key={index}>
+                        <div onClick={() => this.props.handleCreateRoomChat(item)} className="item" key={index}>
                             <div className="wrap-img">
                                 <img src={item['User.avatar']} alt="avatar" />
                             </div>

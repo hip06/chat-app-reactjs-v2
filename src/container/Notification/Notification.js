@@ -4,6 +4,8 @@ import { connect } from "react-redux";
 import './Notification.scss'
 import { updateStatusFriend } from '../../services/userServices'
 import { ToastContainer, toast } from 'react-toastify';
+import * as actions from '../../store/actions'
+import { decrypt } from '../../ulties/crypt'
 
 
 class Notification extends React.Component {
@@ -14,8 +16,10 @@ class Notification extends React.Component {
         }
     }
     handleUpdateStatusFriend = async (item, index) => {
+        let userId = +decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId)
         let response = await updateStatusFriend(item.response)
         if (response?.data.err === 0) {
+            await this.props.fetchAllDataFriends({ userId })
             toast.info('Kết bạn thành công !')
             this.setState({ isCheckedNotification: [...this.state.isCheckedNotification, index] })
         }
@@ -65,12 +69,12 @@ class Notification extends React.Component {
 }
 const mapStateToProps = (state) => {
     return ({
-
+        currentUser: state.auth.user,
     })
 }
 const dispatchStateToProps = (dispatch) => {
     return ({
-
+        fetchAllDataFriends: (data) => dispatch(actions.getAllfriend(data)),
     })
 }
 export default withRouter(connect(mapStateToProps, dispatchStateToProps)(Notification))

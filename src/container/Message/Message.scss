@@ -1,0 +1,33 @@
+@use '../../styles/' as *;
+
+.Message-container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+
+    &.own {
+        justify-content: flex-end;
+    }
+
+    .content-message {
+        padding: 16px;
+        background-color: rgb(101, 128, 245);
+        border-radius: 5px;
+        margin: 16px;
+        width: 50%;
+    }
+
+    .create-at {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        order: 1;
+    }
+}
+
+.first {
+    order: 1;
+}
+
+.second {
+    order: 2;
+}
