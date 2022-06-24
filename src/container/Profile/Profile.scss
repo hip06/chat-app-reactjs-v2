@@ -10,18 +10,19 @@
         height: 100px;
     }
 
-    .content-body {
+    .profile-content {
         height: calc(100vh - ($height-header + 64px));
         @include flex(space-between, center, row);
 
-        .left {
-            width: 30%;
+        .list-friend {
+            width: 25%;
             height: 100%;
+            border: 1px solid red;
 
         }
 
         .right {
-            width: 70%;
+            width: 75%;
             border: 1px solid blue;
             height: 100%;
             border-radius: 20px;

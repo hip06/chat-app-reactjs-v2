@@ -3,10 +3,10 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import './Profile.scss'
 import * as actions from '../../store/actions'
-import List from "../List/List";
 import * as userService from '../../services/userServices'
 import { ToastContainer, toast } from 'react-toastify';
 import Header from "../Header/Header";
+import List from "../List/List";
 
 
 
@@ -39,7 +39,11 @@ class Profile extends React.Component {
                     <div className="header">
                         <Header />
                     </div>
-                    profile
+                    <div className="profile-content">
+                        <div className="list-friend">
+                            <List />
+                        </div>
+                    </div>
                 </div>
                 <ToastContainer
                     position="bottom-right"

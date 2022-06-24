@@ -72,7 +72,6 @@ class Header extends React.Component {
             this.setState({ allDataUser: this.props.dataAllUsers })
         }
         if (prevProps.dataAllFriend !== this.props.dataAllFriend) {
-            console.log('here');
             this.setState({ allDataFriend: this.props.dataAllFriend })
         }
     }
@@ -203,17 +202,6 @@ class Header extends React.Component {
                         <button className="btn btn-danger" onClick={this.props.logout}>Log out</button>
                     </div>
                 </div>
-                <ToastContainer
-                    position="bottom-right"
-                    autoClose={3000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                />
             </>
         )
     }
