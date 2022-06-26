@@ -23,6 +23,12 @@
         margin: 16px;
         max-width: 50%;
 
+        .img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+        }
+
         &.receiver {
             background-color: rgb(119, 117, 117);
         }

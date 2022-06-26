@@ -16,7 +16,10 @@ class Message extends React.Component {
             <div className={own ? "Message-container own" : "Message-container"}>
                 <img className={own ? "avatar disabled" : "avatar"} src={avatar} alt="avatar" />
                 <div className={own ? "content-message second" : "content-message receiver"}>
-                    {content}
+                    {content.indexOf('data') === 0
+                        ? <img className="img" src={content} alt="image" />
+                        : content}
+
                 </div>
                 <div className={own ? "create-at first" : "create-at"}>{this.timestampToDate(time)}</div>
             </div>

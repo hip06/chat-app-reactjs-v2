@@ -6,6 +6,9 @@ import Message from "../Message/Message";
 import { decrypt } from '../../ulties/crypt'
 import { sendMessage, createNoticeOffline } from '../../services/userServices'
 import { Scrollbars } from 'react-custom-scrollbars-2';
+import Picker from 'emoji-picker-react'
+import { toast } from 'react-toastify'
+import toBase64 from '../../ulties/toBase64'
 
 class Conversation extends React.Component {
     constructor(props) {
@@ -13,8 +16,11 @@ class Conversation extends React.Component {
         this.state = {
             currentText: '',
             messages: null,
-            pastMessages: null,
+            pastMessages: [],
             firstTime: true,
+            isShowEmoji: false,
+            file: null,
+            isSendImage: false
         }
         this.sender = +decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId)
         this.messagesEndRef = React.createRef()
@@ -76,8 +82,8 @@ class Conversation extends React.Component {
     }
     handleSendMessage = async (event) => {
         let sender = +decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId)
-        if (event.code === 'Enter') {
-            let { currentText, pastMessages } = this.state
+        if (event.code === 'Enter' || event.type === 'click') {
+            let { currentText, pastMessages, isSendImage, file } = this.state
             let { socket, dataCreateRoom } = this.props
             let payloadMessage = {
                 conversationId: dataCreateRoom.conversationId,
@@ -85,16 +91,18 @@ class Conversation extends React.Component {
                 content: {
                     sender: sender,
                     receiver: dataCreateRoom.to === sender ? dataCreateRoom.from : dataCreateRoom.to,
-                    text: currentText,
+                    text: isSendImage ? file : currentText,
                     createAt: (new Date()).getTime()
                 }
             }
+
             socket.emit('sendMessage', payloadMessage) // send socket server
             let response = await sendMessage(payloadMessage) // save database
             if (response?.data.err === 0) {
                 this.setState({
                     currentText: '',
-                    pastMessages: [...pastMessages, payloadMessage.content]
+                    pastMessages: [...pastMessages, payloadMessage.content],
+                    isSendImage: false
                 })
                 this.scrollBottom()
             }
@@ -105,16 +113,33 @@ class Conversation extends React.Component {
             this.messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: 'nearest', inline: 'nearest' })
         }, 10)
     }
+    onEmojiClick = (event, emojiObject) => {
+        event.stopPropagation()
+        this.setState({
+            isShowEmoji: false,
+            currentText: this.state.currentText + emojiObject.emoji
+        })
+    }
+    handleChangeFile = async (event) => {
+        if (event.target.files?.length === 1) {
+            this.setState({
+                file: await toBase64(event.target.files[0]),
+                isSendImage: true,
+                currentText: ' '
+            })
+        } else {
+            toast.info('Mỗi lần chỉ gửi được 1 ảnh thôi')
+        }
+
+    }
     render() {
-        // console.log(this.props);
         let { dataCreateRoom } = this.props
-        let { currentText, pastMessages } = this.state
-        // console.log(pastMessages);
+        let { currentText, pastMessages, isShowEmoji, isSendImage, file } = this.state
         return (
             <div className="Conversation-container">
                 {dataCreateRoom ? <>
                     <div className="header-name">
-                        {dataCreateRoom['User.username']}
+                        {`Room chat with ${dataCreateRoom['receiver.username']}`}
                     </div>
                     <div className="box-chat">
                         <div className="messages">
@@ -123,7 +148,7 @@ class Conversation extends React.Component {
                                     return (
                                         <Message
                                             key={index}
-                                            avatar={dataCreateRoom['User.avatar']}
+                                            avatar={dataCreateRoom['receiver.avatar']}
                                             own={item.sender === this.sender}
                                             content={item.text}
                                             time={item.createAt}
@@ -139,9 +164,26 @@ class Conversation extends React.Component {
                                 className="foem-control text"
                                 onChange={(event) => this.handleOnchangeTexte(event)}
                                 onKeyUp={(event) => this.handleSendMessage(event)}
-                                placeholder="Text here..."></textarea>
+                                placeholder="Text here somethings...then hit ENTER"
+                            ></textarea>
+                            {isSendImage && <div className="prev-img"><img src={file} alt="" /></div>}
                             <div className="icon">
-                                <i className="fas fa-grin"></i>
+                                <div className="emoji btn btn-primary" onClick={(event) => this.handleSendMessage(event)}><i className="fas fa-paper-plane"></i>Gửi</div>
+                                <div className="emoji btn btn-danger" onClick={() => this.setState({ isShowEmoji: !this.state.isShowEmoji })} >
+                                    <i className="fas fa-grin"></i>
+                                    Emoji
+                                </div>
+                                <label htmlFor="insert-img" className="emoji btn btn-success"><i className="fas fa-file-upload"></i>Chèn ảnh</label>
+                                <input type="file" onChange={(event) => this.handleChangeFile(event)} hidden id="insert-img" />
+                                {isShowEmoji && <div className="box-emoji">
+                                    <Picker
+                                        disableSearchBar={true}
+                                        disableSkinTonePicker={true}
+                                        pickerStyle={{ boxShadow: 'none', backgroundColor: 'rgb(32,32,32)', scrollbarWidth: 'none' }}
+                                        groupVisibility={{ flags: false }}
+                                        onEmojiClick={this.onEmojiClick}
+                                    />
+                                </div>}
                             </div>
                         </div>
                     </div>
