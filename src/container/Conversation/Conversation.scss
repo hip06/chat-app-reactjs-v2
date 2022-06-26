@@ -7,7 +7,7 @@
     .header-name {
         padding: 16px;
         border-bottom: 1px solid rgba(48, 48, 48, 0.5);
-        color: blue;
+        color: #DC3545;
     }
 
     .no-room {
@@ -68,11 +68,11 @@
             }
 
             .icon {
-                @include flex (flex-start, center, column);
                 height: 100%;
                 width: 15%;
+                position: relative;
 
-                .emoji {
+                .emoji-btn {
                     width: 100%;
 
                     i {
@@ -83,11 +83,15 @@
 
                 .box-emoji {
                     position: absolute;
-                    bottom: 50px;
-                    right: 32px;
+                    bottom: 38px;
+                    right: 100%;
+
+                    .emoji-picker-react {
+                        border: none;
+                    }
 
                     .emoji-categories {
-                        background-color: #fff !important;
+                        background-color: rgb(81, 250, 123) !important;
                     }
 
                     .content-wrapper {

@@ -42,7 +42,7 @@ class Profile extends React.Component {
                 })
             }
         } else {
-            toast.warn(`Bạn và ${item['User.username']} vẫn chưa kết bạn !`)
+            toast.warn(`Bạn và ${item['receiver.username']} vẫn chưa kết bạn !`)
         }
     }
     noticeNewChat = (dataNotice) => {

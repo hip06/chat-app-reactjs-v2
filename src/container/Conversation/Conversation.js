@@ -48,7 +48,7 @@ class Conversation extends React.Component {
         })
         socket.off('receiverOffilne').on('receiverOffilne', async (dataNotice) => {
             if (dataNotice !== this.prevDataOffline) {
-                let response = await createNoticeOffline({
+                await createNoticeOffline({
                     ...dataNotice?.content,
                     nameSender: dataNotice?.username,
                 })
@@ -61,8 +61,9 @@ class Conversation extends React.Component {
         let sender = +decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId)
         let { socket, dataCreateRoom } = this.props
         if (prevProps.dataCreateRoom !== dataCreateRoom) {
+            console.log(dataCreateRoom);
             this.setState({
-                pastMessages: dataCreateRoom.text ? JSON.parse(dataCreateRoom.text) : null
+                pastMessages: dataCreateRoom.text ? JSON.parse(dataCreateRoom.text) : []
             })
             //socket api
             socket.emit('joinRoom', {
@@ -102,7 +103,8 @@ class Conversation extends React.Component {
                 this.setState({
                     currentText: '',
                     pastMessages: [...pastMessages, payloadMessage.content],
-                    isSendImage: false
+                    isSendImage: false,
+                    file: ''
                 })
                 this.scrollBottom()
             }
@@ -116,7 +118,6 @@ class Conversation extends React.Component {
     onEmojiClick = (event, emojiObject) => {
         event.stopPropagation()
         this.setState({
-            isShowEmoji: false,
             currentText: this.state.currentText + emojiObject.emoji
         })
     }
@@ -130,8 +131,9 @@ class Conversation extends React.Component {
         } else {
             toast.info('Mỗi lần chỉ gửi được 1 ảnh thôi')
         }
-
     }
+    // set prev img
+
     render() {
         let { dataCreateRoom } = this.props
         let { currentText, pastMessages, isShowEmoji, isSendImage, file } = this.state
@@ -168,12 +170,12 @@ class Conversation extends React.Component {
                             ></textarea>
                             {isSendImage && <div className="prev-img"><img src={file} alt="" /></div>}
                             <div className="icon">
-                                <div className="emoji btn btn-primary" onClick={(event) => this.handleSendMessage(event)}><i className="fas fa-paper-plane"></i>Gửi</div>
-                                <div className="emoji btn btn-danger" onClick={() => this.setState({ isShowEmoji: !this.state.isShowEmoji })} >
+                                <div className="emoji-btn btn btn-primary" onClick={(event) => this.handleSendMessage(event)}><i className="fas fa-paper-plane"></i>Gửi</div>
+                                <div className="emoji-btn btn btn-danger" onClick={() => this.setState({ isShowEmoji: !this.state.isShowEmoji })} >
                                     <i className="fas fa-grin"></i>
                                     Emoji
                                 </div>
-                                <label htmlFor="insert-img" className="emoji btn btn-success"><i className="fas fa-file-upload"></i>Chèn ảnh</label>
+                                <label htmlFor="insert-img" className="emoji-btn btn btn-success"><i className="fas fa-file-upload"></i>Chèn ảnh</label>
                                 <input type="file" onChange={(event) => this.handleChangeFile(event)} hidden id="insert-img" />
                                 {isShowEmoji && <div className="box-emoji">
                                     <Picker
