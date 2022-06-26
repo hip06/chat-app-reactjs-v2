@@ -122,3 +122,30 @@ export const getPastChat = (conversationId) => {
         }
     })
 }
+export const createNoticeOffline = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let response = await axios({
+                method: 'post',
+                url: `${process.env.REACT_APP_URL_NODEJS}/api/create-notice-offine`,
+                data
+            })
+            resolve(response)
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+export const getNoticeOffline = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let response = await axios({
+                method: 'get',
+                url: `${process.env.REACT_APP_URL_NODEJS}/api/get-notice-offine?receiver=${userId}`,
+            })
+            resolve(response)
+        } catch (error) {
+            reject(error)
+        }
+    })
+}

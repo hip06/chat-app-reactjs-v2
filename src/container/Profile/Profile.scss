@@ -7,17 +7,17 @@
     color: #fff;
 
     .header {
-        height: 100px;
+        height: $height-header;
     }
 
     .profile-content {
-        height: calc(100vh - ($height-header + 64px));
+        height: calc(100vh - ($height-header));
         @include flex(space-between, center, row);
 
         .list-friend {
             width: 25%;
             height: 100%;
-            // border: 1px solid red;
+            border-right: 1px solid rgba(48, 48, 48, 0.5);
 
         }
 

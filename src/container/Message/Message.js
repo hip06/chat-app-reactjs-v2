@@ -5,12 +5,7 @@ import './Message.scss'
 
 
 class Message extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
 
-        }
-    }
     timestampToDate = (timestamp) => {
         let date = new Date(timestamp)
         return `${date.getHours()}:${date.getMinutes()}`

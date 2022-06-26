@@ -15,7 +15,8 @@ class Profile extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            dataCreateRoom: null
+            dataCreateRoom: null,
+            noticeMessage: null
         }
     }
     async componentDidMount() {
@@ -44,22 +45,30 @@ class Profile extends React.Component {
             toast.warn(`Bạn và ${item['User.username']} vẫn chưa kết bạn !`)
         }
     }
+    noticeNewChat = (dataNotice) => {
+        this.setState({
+            noticeMessage: {
+                btn: false,
+                message: dataNotice
+            }
+        })
+    }
 
     render() {
         // console.log(this.props.socket);
-        let { dataCreateRoom } = this.state
+        let { dataCreateRoom, noticeMessage } = this.state
         return (
             <>
                 <div className="Profile-container">
                     <div className="header">
-                        <Header />
+                        <Header noticeMessage={noticeMessage} />
                     </div>
                     <div className="profile-content">
                         <div className="list-friend">
                             <List handleCreateRoomChat={this.handleCreateRoomChat} />
                         </div>
                         <div className="conversation-box">
-                            <Conversation dataCreateRoom={dataCreateRoom} />
+                            <Conversation dataCreateRoom={dataCreateRoom} noticeNewChat={this.noticeNewChat} />
                         </div>
                     </div>
                 </div>

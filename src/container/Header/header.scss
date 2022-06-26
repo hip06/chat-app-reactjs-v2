@@ -9,7 +9,7 @@
     .logo {
         width: 25%;
         font-size: 2rem;
-        color: darkblue;
+        color: blue;
         font-weight: 600;
     }
 
@@ -19,6 +19,11 @@
 
         input {
             width: 75%;
+
+            &::placeholder {
+                font-style: italic;
+                font-size: 0.8rem;
+            }
         }
 
         .suggest {
@@ -66,7 +71,7 @@
 
         .account {
             @include flex(space-around, center, row);
-            width: 50%;
+            width: 60%;
 
             .icon-notice {
                 position: relative;
@@ -86,10 +91,28 @@
                     border-radius: 50%;
                 }
             }
+
+            .avatar-img {
+                @include flex(center, center, row);
+                gap: 8px;
+
+                img {
+                    width: 50px;
+                    height: 50px;
+                    object-fit: cover;
+                    border-radius: 50%;
+                    box-shadow: 0 0 5px #ccc;
+                }
+
+                .name {
+                    font-size: 0.8rem;
+                    color: greenyellow;
+                }
+            }
         }
 
         button {
-            width: 30%;
+            max-width: 25%;
         }
     }
 }

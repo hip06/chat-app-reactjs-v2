@@ -29,6 +29,10 @@
             display: none
         }
 
+        .content {
+            color: chocolate
+        }
+
         .btns {
             @include flex(flex-end, center, row);
             margin-top: 8px;

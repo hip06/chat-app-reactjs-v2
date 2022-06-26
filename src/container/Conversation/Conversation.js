@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 import { connect } from 'react-redux'
 import Message from "../Message/Message";
 import { decrypt } from '../../ulties/crypt'
-import { sendMessage, getPastChat } from '../../services/userServices'
+import { sendMessage, createNoticeOffline } from '../../services/userServices'
 import { Scrollbars } from 'react-custom-scrollbars-2';
 
 class Conversation extends React.Component {
@@ -14,22 +14,40 @@ class Conversation extends React.Component {
             currentText: '',
             messages: null,
             pastMessages: null,
-            firstTime: true
+            firstTime: true,
         }
         this.sender = +decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId)
         this.messagesEndRef = React.createRef()
+        this.prevConversationId = NaN
+        this.prevMessage = null
 
     }
     async componentDidMount() {
         let { socket } = this.props
-        //fetch api
-
         // socket api
-        socket.off('newChat').on('newChat', (data) => {
-            console.log(data)
+        socket.off('newChat').on('newChat', (dataNotice) => {
+            if (dataNotice !== this.prevDataOnline) {
+                this.props.noticeNewChat('Đối phương đang offline')
+            }
+            this.prevDataOnline = dataNotice
         })
-        socket.on('receiveMessage', (mes) => {
-            console.log(mes)
+        socket.off('receiveMessage').on('receiveMessage', (payloadMessage) => {
+            if (JSON.stringify(this.prevMessage) !== JSON.stringify(payloadMessage.content)) {
+                this.setState({
+                    pastMessages: [... this.state.pastMessages, payloadMessage?.content],
+                })
+            }
+            this.prevMessage = payloadMessage?.content
+            this.scrollBottom()
+        })
+        socket.off('receiverOffilne').on('receiverOffilne', async (dataNotice) => {
+            if (dataNotice !== this.prevDataOffline) {
+                let response = await createNoticeOffline({
+                    ...dataNotice?.content,
+                    nameSender: dataNotice?.username,
+                })
+            }
+            this.prevDataOffline = dataNotice
         })
 
     }
@@ -44,8 +62,10 @@ class Conversation extends React.Component {
             socket.emit('joinRoom', {
                 conversationId: dataCreateRoom.conversationId,
                 sender: sender,
-                receiver: dataCreateRoom.to === sender ? dataCreateRoom.from : dataCreateRoom.to
+                receiver: dataCreateRoom.to === sender ? dataCreateRoom.from : dataCreateRoom.to,
+                prevConversationId: this.prevConversationId
             })
+            this.prevConversationId = dataCreateRoom.conversationId
             this.scrollBottom()
         }
     }
@@ -57,28 +77,32 @@ class Conversation extends React.Component {
     handleSendMessage = async (event) => {
         let sender = +decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId)
         if (event.code === 'Enter') {
-            let { currentText } = this.state
+            let { currentText, pastMessages } = this.state
             let { socket, dataCreateRoom } = this.props
-            socket.emit('sendMessage', currentText)
-            let response = await sendMessage({
+            let payloadMessage = {
                 conversationId: dataCreateRoom.conversationId,
+                username: this.props?.currentUser?.username,
                 content: {
                     sender: sender,
                     receiver: dataCreateRoom.to === sender ? dataCreateRoom.from : dataCreateRoom.to,
                     text: currentText,
                     createAt: (new Date()).getTime()
                 }
-            })
+            }
+            socket.emit('sendMessage', payloadMessage) // send socket server
+            let response = await sendMessage(payloadMessage) // save database
             if (response?.data.err === 0) {
                 this.setState({
-                    currentText: ''
+                    currentText: '',
+                    pastMessages: [...pastMessages, payloadMessage.content]
                 })
+                this.scrollBottom()
             }
         }
     }
     scrollBottom = () => {
         setTimeout(() => {
-            this.messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+            this.messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: 'nearest', inline: 'nearest' })
         }, 10)
     }
     render() {
@@ -106,7 +130,6 @@ class Conversation extends React.Component {
                                         />
                                     )
                                 })}
-
                                 <div ref={this.messagesEndRef}  ></div>
                             </Scrollbars>
                         </div>
@@ -122,7 +145,7 @@ class Conversation extends React.Component {
                             </div>
                         </div>
                     </div>
-                </> : <div className="no-room">Tạo cuộc trò chuyện mới bằng cách click vào người bạn muốn nhắn</div>}
+                </> : <div className="no-room">Tạo cuộc trò chuyện mới bằng cách click vào bạn bè mà bạn muốn chat</div>}
             </div>
         )
     }

@@ -4,8 +4,8 @@ import './header.scss'
 import { connect } from 'react-redux'
 import * as actions from '../../store/actions'
 import { decrypt } from '../../ulties/crypt'
-import { handleAddFriendService } from '../../services/userServices'
-import { ToastContainer, toast } from 'react-toastify';
+import { handleAddFriendService, getNoticeOffline } from '../../services/userServices'
+import { toast } from 'react-toastify';
 import Notification from "../Notification/Notification";
 
 
@@ -17,9 +17,9 @@ class Header extends React.Component {
             allDataFriend: null,
             keyword: '',
             suggestFriends: null,
-            notificationMessageCounter: 0,
             notificationCounter: 0,
             notificationContent: [],
+            notificationMessageCounter: 0,
             notificationMessageContent: [],
             isShowNotification: false,
             isClickSuggest: false,
@@ -38,12 +38,14 @@ class Header extends React.Component {
             if (JSON.stringify(this.responseOnline) !== JSON.stringify(response)) {
                 this.setState({
                     notificationCounter: this.state.notificationCounter += 1,
-                    notificationContent: [...this.state.notificationContent, {
+                    notificationContent: [{
                         type: 'addFriend',
                         message: `Bạn có một đề nghị kết bạn từ ${response.usernameSender}`,
                         response,
                         btn: true
-                    }]
+                    },
+                    ...this.state.notificationContent
+                    ]
                 })
             }
             this.responseOnline = response
@@ -53,19 +55,65 @@ class Header extends React.Component {
             if (JSON.stringify(this.responseOffline) !== JSON.stringify(response)) {
                 this.setState({
                     notificationCounter: this.state.notificationCounter += 1,
-                    notificationContent: [...this.state.notificationContent, {
+                    notificationContent: [{
                         type: 'addFriend',
                         message: `Tài khoản ${response.usernameReceiver} đang offline, lời mời đang ở chế độ chờ`,
                         response,
                         btn: false
-                    }]
+                    },
+                    ...this.state.notificationContent
+                    ]
                 })
             }
             this.responseOffline = response
         })
 
         // fetch api
-        await Promise.all([this.props.fetchAllDataUsers(), this.props.fetchAllDataFriends({ userId })])
+        let [response, ...rest] = await Promise.all([getNoticeOffline(userId), this.props.fetchAllDataUsers(), this.props.fetchAllDataFriends({ userId })])
+        if (response?.data.err === 0) {
+            let sender = 0
+            let dataNotice = response?.data?.response.filter(item => {
+                if (item.from === sender) {
+                    return false
+                } else {
+                    sender = item.from
+                    return true
+                }
+            })
+            this.setState({
+                notificationMessageCounter: this.state.notificationMessageCounter += dataNotice.length,
+                notificationMessageContent: [
+                    ...this.state.notificationMessageContent,
+                    ...this.formatNotice(dataNotice)
+
+                ]
+            })
+        }
+    }
+    formatNotice = (data) => {
+        let formatedData = []
+        if (data && data.length > 0) {
+            formatedData = data.map(item => {
+                return {
+                    btn: false,
+                    message: `Bạn có tin nhắn mới từ ${item.nameSender} khoảng ${this.formatTimeSeconds(new Date() - new Date(+item.timestamp))} trước`
+                }
+            })
+        }
+        return formatedData
+    }
+    formatTimeSeconds = (seconds) => {
+        let minutes = NaN
+        let hours = NaN
+        while (seconds >= 60) {
+            minutes = Math.floor(seconds / 60)
+            seconds = seconds % 60
+        }
+        while (minutes >= 60) {
+            hours = Math.floor(seconds / 60)
+            minutes = seconds % 60
+        }
+        return hours === 0 ? `${minutes} phút ${seconds} giây` : minutes === 0 && hours === 0 ? `${seconds} giây` : `${hours} giờ ${minutes} phút ${seconds} giây`
     }
     componentDidUpdate(prevProps) {
         if (prevProps.dataAllUsers !== this.props.dataAllUsers) {
@@ -73,6 +121,15 @@ class Header extends React.Component {
         }
         if (prevProps.dataAllFriend !== this.props.dataAllFriend) {
             this.setState({ allDataFriend: this.props.dataAllFriend })
+        }
+        if (prevProps.noticeMessage !== this.props.noticeMessage) {
+            this.setState({
+                notificationMessageCounter: this.state.notificationMessageCounter += 1,
+                notificationMessageContent: [
+                    this.props.noticeMessage,
+                    ...this.state.notificationMessageContent
+                ]
+            })
         }
     }
     handleSearch = (event) => {
@@ -197,9 +254,12 @@ class Header extends React.Component {
                                     clearNotification={this.clearNotification}
                                 />}
                             </div>
-                            <div className="avatar-img">avatar</div>
+                            <div className="avatar-img">
+                                <img src={this.props?.currentUser?.avatar} alt="" />
+                                <div className="name">{this.props?.currentUser?.username}</div>
+                            </div>
                         </div>
-                        <button className="btn btn-danger" onClick={this.props.logout}>Log out</button>
+                        <button title="Đăng xuất" className="btn btn-danger" onClick={this.props.logout}><i className="fas fa-sign-out-alt"></i></button>
                     </div>
                 </div>
             </>
