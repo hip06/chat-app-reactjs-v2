@@ -149,3 +149,16 @@ export const getNoticeOffline = (userId) => {
         }
     })
 }
+export const deleteNoticeOffline = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let response = await axios({
+                method: 'delete',
+                url: `${process.env.REACT_APP_URL_NODEJS}/api/delete-notice-offine?userId=${userId}`,
+            })
+            resolve(response)
+        } catch (error) {
+            reject(error)
+        }
+    })
+}

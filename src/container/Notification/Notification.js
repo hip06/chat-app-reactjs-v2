@@ -20,6 +20,7 @@ class Notification extends React.Component {
         let response = await updateStatusFriend(item.response)
         if (response?.data.err === 0) {
             await this.props.fetchAllDataFriends({ userId })
+            this.props.socket.emit('addFriendSucceed', item.response)
             toast.info('Kết bạn thành công !')
             this.setState({ isCheckedNotification: [...this.state.isCheckedNotification, index] })
         }
@@ -70,6 +71,7 @@ class Notification extends React.Component {
 const mapStateToProps = (state) => {
     return ({
         currentUser: state.auth.user,
+        socket: state.app.socket
     })
 }
 const dispatchStateToProps = (dispatch) => {

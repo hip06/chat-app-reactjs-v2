@@ -4,7 +4,7 @@ import './header.scss'
 import { connect } from 'react-redux'
 import * as actions from '../../store/actions'
 import { decrypt } from '../../ulties/crypt'
-import { handleAddFriendService, getNoticeOffline } from '../../services/userServices'
+import { handleAddFriendService, getNoticeOffline, deleteNoticeOffline } from '../../services/userServices'
 import { toast } from 'react-toastify';
 import Notification from "../Notification/Notification";
 
@@ -120,7 +120,21 @@ class Header extends React.Component {
             this.setState({ allDataUser: this.props.dataAllUsers })
         }
         if (prevProps.dataAllFriend !== this.props.dataAllFriend) {
-            this.setState({ allDataFriend: this.props.dataAllFriend })
+            let newAddFriend = this.props.dataAllFriend.filter(item => item.status === 'Pending')
+            this.setState({
+                allDataFriend: this.props.dataAllFriend,
+                notificationCounter: newAddFriend.length > 0 ? this.state.notificationCounter + newAddFriend.length : this.state.notificationCounter,
+                notificationContent: newAddFriend.length > 0 ? [...newAddFriend.map(item => {
+                    return {
+                        message: `Bạn có lời mời kết bạn từ ${item['sender.username']}`,
+                        btn: true,
+                        response: {
+                            userId: item.from,
+                            friendId: item.to
+                        }
+                    }
+                }), ...this.state.notificationContent] : this.state.notificationContent
+            })
         }
         if (prevProps.noticeMessage !== this.props.noticeMessage) {
             this.setState({
@@ -150,8 +164,10 @@ class Header extends React.Component {
         })
     }
     clearNotification = () => {
+        let { isShowNotification, notificationContent, notificationMessageContent } = this.state
         this.setState({
-            notificationContent: []
+            notificationContent: isShowNotification === 2 ? [] : notificationContent,
+            notificationMessageContent: isShowNotification === 1 ? [] : notificationMessageContent
         })
     }
     handleAddFriend = async (item) => {
@@ -176,7 +192,11 @@ class Header extends React.Component {
 
         }
     }
-    toggleNotification = (type) => {
+    toggleNotification = async (type) => {
+        // delete notice offline before
+        if (type === 1 && this.state.isShowNotification) {
+            await deleteNoticeOffline(+decrypt(process.env.REACT_APP_SALT, this.props?.currentUser?.userId))
+        }
         this.setState({
             isShowNotification: this.state.isShowNotification === type ? false : type,
             notificationCounter: type === 2 ? 0 : this.state.notificationCounter,
@@ -197,7 +217,6 @@ class Header extends React.Component {
         })
     }
     render() {
-        // console.log(this.props.dataAllFriend);
         let { keyword, suggestFriends, notificationCounter, notificationMessageCounter, isShowNotification, notificationContent, notificationMessageContent,
             friendSendRequest } = this.state
         return (
